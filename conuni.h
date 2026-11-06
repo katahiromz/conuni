@@ -75,6 +75,14 @@ void FileVPrintfW(FILE* fout, LPCWSTR pszFormat, va_list va);
 void DebugVPrintfA(LPCSTR  pszFormat, va_list va);
 void DebugVPrintfW(LPCWSTR pszFormat, va_list va);
 
+#ifdef NDEBUG
+    #define DPRINTA
+    #define DPRINTW
+#else
+    #define DPRINTA DebugPrintfA
+    #define DPRINTW DebugPrintfW
+#endif
+
 #ifdef UNICODE
     #define Printf PrintfW
     #define DebugPrintf DebugPrintfW
@@ -82,6 +90,7 @@ void DebugVPrintfW(LPCWSTR pszFormat, va_list va);
     #define FilePutString FilePutStringW
     #define FilePrintf FilePrintfW
     #define FileVPrintf FileVPrintfW
+    #define DPRINT DPRINTW
 #else
     #define Printf PrintfA
     #define DebugPrintf DebugPrintfA
@@ -89,14 +98,7 @@ void DebugVPrintfW(LPCWSTR pszFormat, va_list va);
     #define FilePutString FilePutStringA
     #define FilePrintf FilePrintfA
     #define FileVPrintf FileVPrintfA
-#endif
-
-#ifdef NDEBUG
-    #define DPRINTA
-    #define DPRINTW
-#else
-    #define DPRINTA DebugPrintfA
-    #define DPRINTW DebugPrintfW
+    #define DPRINT DPRINTA
 #endif
 
 //////////////////////////////////////////////////////////////////
