@@ -11,21 +11,34 @@
 #include <cstdarg>
 #include <string>
 
+#ifndef MStringA
+    #define MStringA std::string
+#endif
+#ifndef MStringW
+    #define MStringW std::wstring
+#endif
+
+#ifdef UNICODE
+    using MString = MStringW;
+#else
+    using MString = MStringA;
+#endif
+
 //////////////////////////////////////////////////////////////////
 // Conversion
 
 #define CP_SJIS 932
 
-std::wstring WideFromAnsi(const std::string& ansi , UINT nCodePage = CP_ACP);
-std::string  AnsiFromWide(const std::wstring& wide, UINT nCodePage = CP_ACP);
+MStringW WideFromAnsi(const MStringA& ansi , UINT nCodePage = CP_ACP);
+MStringA  AnsiFromWide(const MStringW& wide, UINT nCodePage = CP_ACP);
 #define Utf8FromWide(wide) AnsiFromWide((wide), CP_UTF8)
 #define SjisFromWide(wide) AnsiFromWide((wide), CP_SJIS)
 #define WideFromUtf8(utf8) WideFromAnsi((utf8), CP_UTF8)
 #define WideFromSjis(sjis) WideFromAnsi((sjis), CP_SJIS)
 
-#define AnsiFromAnsi(ansi) std::string(ansi)
-#define WideFromWide(wide) std::wstring(wide)
-#define Utf8FromUtf8(utf8) std::string(utf8)
+#define AnsiFromAnsi(ansi) MStringA(ansi)
+#define WideFromWide(wide) MStringW(wide)
+#define Utf8FromUtf8(utf8) MStringA(utf8)
 
 // ANSI(CP_ACP) <-> UTF-8 (via Wide)
 #define AnsiFromUtf8(utf8) AnsiFromWide(WideFromUtf8(utf8))
@@ -107,11 +120,11 @@ void DebugVPrintfW(LPCWSTR pszFormat, va_list va);
 // - 1行を読み取り、末尾の改行(\r\n, \n)は取り除く。
 // - EOF(何も読めなかった場合)は false を返す。
 
-bool FileGetLineA(std::string&  line, FILE* fin);
-bool FileGetLineW(std::wstring& line, FILE* fin);
+bool FileGetLineA(MStringA&  line, FILE* fin);
+bool FileGetLineW(MStringW& line, FILE* fin);
 
-bool GetLineA(std::string&  line);
-bool GetLineW(std::wstring& line);
+bool GetLineA(MStringA&  line);
+bool GetLineW(MStringW& line);
 
 #ifdef UNICODE
     #define FileGetLine FileGetLineW

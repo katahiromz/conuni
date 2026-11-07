@@ -339,22 +339,22 @@ static int FormatV(TempBuffer<wchar_t, kBufChars>& tb, LPCWSTR pszFormat, va_lis
 //////////////////////////////////////////////////////////////////
 // Conversion
 
-std::wstring WideFromAnsi(const std::string& ansi, UINT nCodePage) {
+MStringW WideFromAnsi(const MStringA& ansi, UINT nCodePage) {
     TempBuffer<wchar_t, kBufChars> tb;
     const wchar_t* p = nullptr;
     int cch = MBToWide(nCodePage, ansi.data(), ansi.size(), tb, p);
     if (cch <= 0)
-        return std::wstring();
-    return std::wstring(p, static_cast<size_t>(cch));
+        return MStringW();
+    return MStringW(p, static_cast<size_t>(cch));
 }
 
-std::string AnsiFromWide(const std::wstring& wide, UINT nCodePage) {
+MStringA AnsiFromWide(const MStringW& wide, UINT nCodePage) {
     TempBuffer<char, kBufChars> tb;
     const char* p = nullptr;
     int cb = WideToMB(nCodePage, wide.data(), wide.size(), tb, p);
     if (cb <= 0)
-        return std::string();
-    return std::string(p, static_cast<size_t>(cb));
+        return MStringA();
+    return MStringA(p, static_cast<size_t>(cb));
 }
 
 //////////////////////////////////////////////////////////////////
@@ -455,7 +455,7 @@ void DebugPrintfW(LPCWSTR pszFormat, ...) {
 //////////////////////////////////////////////////////////////////
 // Input
 
-bool FileGetLineW(std::wstring& line, FILE* fin) {
+bool FileGetLineW(MStringW& line, FILE* fin) {
     line.clear();
     if (!fin)
         return false;
@@ -497,7 +497,7 @@ bool FileGetLineW(std::wstring& line, FILE* fin) {
     const char* p = szBuf;
     size_t n = strlen(szBuf);
 
-    std::string longLine; // 行が長い場合のみ使用
+    MStringA longLine; // 行が長い場合のみ使用
     if (n == sizeof(szBuf) - 1 && szBuf[n - 1] != '\n') {
         longLine.assign(szBuf, n);
         while (fgets(szBuf, sizeof(szBuf), fin)) {
@@ -526,17 +526,17 @@ bool FileGetLineW(std::wstring& line, FILE* fin) {
     return true;
 }
 
-bool FileGetLineA(std::string& line, FILE* fin) {
-    std::wstring wide;
+bool FileGetLineA(MStringA& line, FILE* fin) {
+    MStringW wide;
     bool ret = FileGetLineW(wide, fin);
     line = AnsiFromWide(wide);
     return ret;
 }
 
-bool GetLineA(std::string& line) {
+bool GetLineA(MStringA& line) {
     return FileGetLineA(line, stdin);
 }
 
-bool GetLineW(std::wstring& line) {
+bool GetLineW(MStringW& line) {
     return FileGetLineW(line, stdin);
 }
