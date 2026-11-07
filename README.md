@@ -74,7 +74,7 @@ app.exe < in.txt           # in.txt は UTF-8 として読み取り
 | `WideFromAnsi(str, codePage = CP_ACP)` | マルチバイト → UTF-16 |
 | `AnsiFromWide(wstr, codePage = CP_ACP)` | UTF-16 → マルチバイト |
 | `Utf8FromWide(wstr)` / `WideFromUtf8(str)` | UTF-8 との相互変換 |
-| `SJISFromWide(wstr)` / `WideFromSJIS(str)` | Shift_JIS(CP932)との相互変換 |
+| `SjisFromWide(wstr)` / `WideFromSjis(str)` | Shift_JIS(CP932)との相互変換 |
 | `AnsiFromUtf8(str)` / `Utf8FromAnsi(str)` | ANSI(CP_ACP)と UTF-8 の相互変換 |
 
 変換に失敗した場合、または入力が空の場合は空文字列を返します。

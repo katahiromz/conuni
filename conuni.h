@@ -14,16 +14,14 @@
 //////////////////////////////////////////////////////////////////
 // Conversion
 
-#ifndef CP_SJIS
-    #define CP_SJIS 932
-#endif
+#define CP_SJIS 932
 
 std::wstring WideFromAnsi(const std::string& ansi , UINT nCodePage = CP_ACP);
 std::string  AnsiFromWide(const std::wstring& wide, UINT nCodePage = CP_ACP);
 #define Utf8FromWide(wide) AnsiFromWide((wide), CP_UTF8)
-#define SJISFromWide(wide) AnsiFromWide((wide), CP_SJIS)
+#define SjisFromWide(wide) AnsiFromWide((wide), CP_SJIS)
 #define WideFromUtf8(utf8) WideFromAnsi((utf8), CP_UTF8)
-#define WideFromSJIS(sjis) WideFromAnsi((sjis), CP_SJIS)
+#define WideFromSjis(sjis) WideFromAnsi((sjis), CP_SJIS)
 
 #define AnsiFromAnsi(ansi) std::string(ansi)
 #define WideFromWide(wide) std::wstring(wide)

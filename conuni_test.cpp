@@ -83,8 +83,8 @@ static void TestConversion() {
     CHECK(WideFromUtf8(std::string(UTF8_EMOJI)) == emoji);
 
     // Shift_JIS
-    CHECK(SJISFromWide(L"\u3042") == "\x82\xA0");
-    CHECK(WideFromSJIS(std::string("\x82\xA0")) == L"\u3042");
+    CHECK(SjisFromWide(L"\u3042") == "\x82\xA0");
+    CHECK(WideFromSjis(std::string("\x82\xA0")) == L"\u3042");
 
     // empty
     CHECK(Utf8FromWide(std::wstring()).empty());
@@ -115,7 +115,7 @@ static void TestConversionBoundaries() {
             }
             CHECK(Utf8FromWide(wide) == expected);
             CHECK(WideFromUtf8(expected) == wide);
-            CHECK(WideFromSJIS(SJISFromWide(wide)) == wide);
+            CHECK(WideFromSjis(SjisFromWide(wide)) == wide);
             if (mode == 0) {
                 CHECK(AnsiFromWide(wide) == expected);
                 CHECK(WideFromAnsi(expected) == wide);

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(conuni VERSION 0.1.0 LANGUAGES CXX)
+project(conuni VERSION 0.1.2 LANGUAGES CXX)
 
 if(NOT WIN32)
     message(FATAL_ERROR "conuni is a Win32 library and can only be built on Windows.")
