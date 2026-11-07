@@ -97,6 +97,43 @@ static void TestConversion() {
     CHECK(WideFromAnsi("hello") == L"hello");
 }
 
+// ASCII 高速パス / スタックバッファ / ヒープの境界をまたぐ長さと、
+// 非ASCII文字の位置を変えて確認する。
+static void TestConversionBoundaries() {
+    const size_t lengths[] = {
+        1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17, 255, 256, 257, 340, 341,
+        511, 512, 513, 1023, 1024, 1025, 2000, 5000
+    };
+    for (size_t len : lengths) {
+        for (int mode = 0; mode < 4; ++mode) {
+            std::wstring wide(len, L'a');
+            std::string expected(len, 'a');
+            if (mode > 0) {
+                size_t pos = (mode == 1) ? 0 : (mode == 2) ? len / 2 : len - 1;
+                wide[pos] = L'\u3042';
+                expected = std::string(pos, 'a') + UTF8_A + std::string(len - pos - 1, 'a');
+            }
+            CHECK(Utf8FromWide(wide) == expected);
+            CHECK(WideFromUtf8(expected) == wide);
+            CHECK(WideFromSJIS(SJISFromWide(wide)) == wide);
+            if (mode == 0) {
+                CHECK(AnsiFromWide(wide) == expected);
+                CHECK(WideFromAnsi(expected) == wide);
+            }
+        }
+    }
+
+    // 全て非ASCII(出力が 1024 バイトのスタックバッファを超える)
+    {
+        std::wstring wide(3000, L'\u3042');
+        std::string expected;
+        for (int i = 0; i < 3000; ++i)
+            expected += UTF8_A;
+        CHECK(Utf8FromWide(wide) == expected);
+        CHECK(WideFromUtf8(expected) == wide);
+    }
+}
+
 //////////////////////////////////////////////////////////////////
 // Tests: Macros (UNICODE / ANSI)
 
@@ -248,6 +285,48 @@ static void TestInput() {
         }
     }
 
+    // 内部バッファ(4096バイト)の境界前後の長さの行
+    {
+        const size_t sizes[] = { 4093, 4094, 4095, 4096, 4097 };
+        for (size_t size : sizes) {
+            const std::string longLine(size, 'q');
+            CHECK(WriteBytes(path, longLine + "\r\n" + "next\n"));
+            FILE* fp = std::fopen(path.c_str(), "rb");
+            CHECK(fp != nullptr);
+            if (fp) {
+                std::string line;
+                CHECK(FileGetLineA(line, fp));
+                CHECK(line == longLine);
+                CHECK(FileGetLineA(line, fp));
+                CHECK(line == "next");
+                CHECK(!FileGetLineA(line, fp));
+                std::fclose(fp);
+            }
+        }
+    }
+
+    // 4096バイトを超える非ASCIIの行
+    {
+        std::string longUtf8;
+        std::wstring longWide;
+        for (int i = 0; i < 3000; ++i) {
+            longUtf8 += UTF8_A;
+            longWide += L'\u3042';
+        }
+        CHECK(WriteBytes(path, longUtf8 + "\r\n" + "z\n"));
+        FILE* fp = std::fopen(path.c_str(), "rb");
+        CHECK(fp != nullptr);
+        if (fp) {
+            std::wstring line;
+            CHECK(FileGetLineW(line, fp));
+            CHECK(line == longWide);
+            CHECK(FileGetLineW(line, fp));
+            CHECK(line == L"z");
+            CHECK(!FileGetLineW(line, fp));
+            std::fclose(fp);
+        }
+    }
+
     // サロゲートペア
     {
         CHECK(WriteBytes(path, std::string(UTF8_EMOJI) + "\n"));
@@ -286,6 +365,7 @@ static void TestInput() {
 
 int main() {
     TestConversion();
+    TestConversionBoundaries();
     TestMacros();
     TestOutput();
     TestInput();

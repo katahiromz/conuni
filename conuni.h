@@ -76,8 +76,8 @@ void DebugVPrintfA(LPCSTR  pszFormat, va_list va);
 void DebugVPrintfW(LPCWSTR pszFormat, va_list va);
 
 #ifdef NDEBUG
-    #define DPRINTA
-    #define DPRINTW
+    #define DPRINTA 1 ? (void)0 : DebugPrintfA
+    #define DPRINTW 1 ? (void)0 : DebugPrintfW
 #else
     #define DPRINTA DebugPrintfA
     #define DPRINTW DebugPrintfW
